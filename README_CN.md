@@ -6,23 +6,41 @@ Rust 管理 Kokoro 登入與訂閱、Mihomo 啟停，並透過 iproute2 和 nfta
 
 ## 安裝
 
-在 GNU/Linux 上使用 Rust／Cargo 1.85 以上建置原生命令列程式。Debian、Ubuntu 可執行以下命令。
+### 安裝預編譯版本
+
+[v0.3.1 發行頁](https://github.com/amamiyakokoro/KokoroBox-CLI/releases/tag/v0.3.1) 提供 Linux AMD64 與 ARM64 壓縮檔，使用 Debian 12、glibc 與 OpenSSL 3 建置。每個壓縮檔含 CLI、安裝程式和規則資料。在 Debian 12 或更新版本、Ubuntu 24.04 或更新版本，可安裝執行環境依賴並校驗壓縮檔後再解壓。
 
 ```sh
-sudo apt-get install bash python3 python3-yaml curl ca-certificates iproute2 util-linux passwd build-essential pkg-config libcurl4-openssl-dev libssl-dev
-git clone --depth 1 --single-branch -b dev https://github.com/amamiyakokoro/KokoroBox-CLI.git
+sudo apt-get install bash python3 python3-yaml curl ca-certificates iproute2 util-linux passwd
+
+case $(uname -m) in
+    x86_64) arch=amd64 ;;
+    aarch64|arm64) arch=arm64 ;;
+    *) echo "此架構請從原始碼建置。" >&2; exit 1 ;;
+esac
+
+archive="KokoroBox-CLI-v0.3.1-linux-$arch.tar.gz"
+release="https://github.com/amamiyakokoro/KokoroBox-CLI/releases/download/v0.3.1"
+curl -fLO "$release/$archive" || exit 1
+curl -fLO "$release/SHA256SUMS" || exit 1
+grep -F "  $archive" SHA256SUMS | sha256sum --check || exit 1
+tar -xzf "$archive" || exit 1
+cd "${archive%.tar.gz}" || exit 1
+sudo env KOKOROBOX_CLI_BIN="$PWD/kokorobox" bash install.sh
+```
+
+安裝器會下載並校驗指定版本的 Mihomo 核心。離線安裝時，在 `sudo env` 命令中加上 `KOKOROBOX_MIHOMO_ARCHIVE=/absolute/path/to/archive.gz`，並使用 [bin/mihomo.sha256](bin/mihomo.sha256) 列出的對應架構官方檔案。
+
+### 從原始碼建置
+
+先安裝上方的執行環境依賴、Rust／Cargo 1.85 以上版本與下列建置套件。若要建置開發版，clone 時選用 `dev` 分支。
+
+```sh
+sudo apt-get install build-essential pkg-config libcurl4-openssl-dev libssl-dev
+git clone --depth 1 --single-branch -b v0.3.1 https://github.com/amamiyakokoro/KokoroBox-CLI.git
 cd KokoroBox-CLI
 cargo build --release --locked
 sudo env KOKOROBOX_CLI_BIN="$PWD/target/release/kokorobox" bash install.sh
-```
-
-可透過 `KOKOROBOX_CLI_BIN` 安裝適用目標 GNU/Linux 架構的預建檔，目標主機無須安裝 Rust；未指定時，安裝器會用 Cargo 從原始碼建置。
-
-安裝器會依 x86_64、aarch64、ARMv5–v7 或 MIPS 架構下載指定版本的 Mihomo 官方發行檔，並比對倉庫記錄的 SHA-256。離線安裝可同時指定預先編譯的 CLI 與對應架構的官方 `.gz` 檔，以下以 ARM64 為例。
-
-```sh
-sudo env KOKOROBOX_CLI_BIN=/path/to/kokorobox \
-    KOKOROBOX_MIHOMO_ARCHIVE=/path/to/mihomo-linux-arm64-v1.19.34.gz bash install.sh
 ```
 
 首次互動安裝會先選擇簡中、繁中或英文，再開啟主選單。日後可在 **3 → b** 更換語言。非互動安裝可指定 `KOKOROBOX_LANG=chs|cht|en`，也可留待第一次開啟選單時選擇。
@@ -81,7 +99,7 @@ sudo kokorobox transparent off
 
 使用 `sudo kokorobox 子命令` 執行，或直接執行 `sudo kokorobox` 開啟選單。自動同步需有執行中的 cron，服務停止時只更新設定。傳給 Kokoro 的訂閱更新間隔與本機排程分開設定。開機自啟可使用 `sudo systemctl enable kokorobox.service` 或 `sudo rc-update add kokorobox default`。沒有這兩種管理器的主機也可直接透過 CLI 啟停。
 
-升級時拉取新版、重新建置 CLI 後執行安裝器。既有帳號、語言、訂閱選擇及定時同步排程會保留。舊版本機或混合接管會遷移為本機 TUN，升級前需備妥 nftables。原本僅代理區網的安裝改用回環代理。本機手動規則覆寫與面板選擇停止套用，既有 sing-box JSON 設定會保留供後續相容。
+升級時下載並校驗新版壓縮檔，再執行內附的安裝程式。從原始碼安裝時，先切換至目標版本並重新建置。既有帳號、語言、訂閱選擇及定時同步排程會保留。舊版本機或混合接管會遷移為本機 TUN，升級前需備妥 nftables。原本僅代理區網的安裝改用回環代理。本機手動規則覆寫與面板選擇停止套用，既有 sing-box JSON 設定會保留供後續相容。
 
 ## 授權
 

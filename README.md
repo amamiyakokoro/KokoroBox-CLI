@@ -6,23 +6,41 @@ Rust manages Kokoro login and subscriptions, starts and stops Mihomo, and config
 
 ## Install
 
-Build the native Rust CLI with Rust/Cargo 1.85 or later on GNU/Linux. On Debian or Ubuntu:
+### Install a prebuilt release
+
+The [v0.3.1 release](https://github.com/amamiyakokoro/KokoroBox-CLI/releases/tag/v0.3.1) provides Linux AMD64 and ARM64 archives built on Debian 12 with glibc and OpenSSL 3. Each archive includes the CLI, installer, and rule data. On Debian 12 or newer, or Ubuntu 24.04 or newer, install the runtime dependencies and verify the archive before extracting it.
 
 ```sh
-sudo apt-get install bash python3 python3-yaml curl ca-certificates iproute2 util-linux passwd build-essential pkg-config libcurl4-openssl-dev libssl-dev
-git clone --depth 1 --single-branch -b dev https://github.com/amamiyakokoro/KokoroBox-CLI.git
+sudo apt-get install bash python3 python3-yaml curl ca-certificates iproute2 util-linux passwd
+
+case $(uname -m) in
+    x86_64) arch=amd64 ;;
+    aarch64|arm64) arch=arm64 ;;
+    *) echo "No prebuilt CLI for this architecture. Build from source." >&2; exit 1 ;;
+esac
+
+archive="KokoroBox-CLI-v0.3.1-linux-$arch.tar.gz"
+release="https://github.com/amamiyakokoro/KokoroBox-CLI/releases/download/v0.3.1"
+curl -fLO "$release/$archive" || exit 1
+curl -fLO "$release/SHA256SUMS" || exit 1
+grep -F "  $archive" SHA256SUMS | sha256sum --check || exit 1
+tar -xzf "$archive" || exit 1
+cd "${archive%.tar.gz}" || exit 1
+sudo env KOKOROBOX_CLI_BIN="$PWD/kokorobox" bash install.sh
+```
+
+The installer downloads and verifies the pinned Mihomo core. For offline installation, add `KOKOROBOX_MIHOMO_ARCHIVE=/absolute/path/to/archive.gz` to the `sudo env` command. Use the official Mihomo archive for your architecture listed in [bin/mihomo.sha256](bin/mihomo.sha256).
+
+### Build from source
+
+Install the runtime dependencies above, Rust/Cargo 1.85 or later, and the build packages below. For development builds, clone the `dev` branch in place of the release tag.
+
+```sh
+sudo apt-get install build-essential pkg-config libcurl4-openssl-dev libssl-dev
+git clone --depth 1 --single-branch -b v0.3.1 https://github.com/amamiyakokoro/KokoroBox-CLI.git
 cd KokoroBox-CLI
 cargo build --release --locked
 sudo env KOKOROBOX_CLI_BIN="$PWD/target/release/kokorobox" bash install.sh
-```
-
-A target host can use a matching prebuilt GNU/Linux binary via `KOKOROBOX_CLI_BIN` without a Rust toolchain. Without that variable the installer builds from the checkout using Cargo.
-
-The installer downloads the pinned official Mihomo build for x86_64, aarch64, ARMv5–v7 or MIPS GNU/Linux and verifies the archive against the repository’s SHA-256 checksum. For offline installation, supply both the prebuilt CLI and the matching official `.gz` archive.
-
-```sh
-sudo env KOKOROBOX_CLI_BIN=/path/to/kokorobox \
-    KOKOROBOX_MIHOMO_ARCHIVE=/path/to/mihomo-linux-arm64-v1.19.34.gz bash install.sh
 ```
 
 The first interactive installation asks for 简体中文, 繁體中文 or English and opens the main menu. Change the saved language under **3 → b**. For unattended installation, set `KOKOROBOX_LANG=chs|cht|en` or choose a language on first interactive use.
@@ -82,7 +100,7 @@ The switch persists and restarts an active service. Transparent mode directs loc
 
 Prefix the subcommands above with `sudo kokorobox`. Automatic sync requires a running cron service. It refreshes a stopped client’s profile without starting it. The update interval advertised to Kokoro is independent of this local schedule. Enable boot startup with `sudo systemctl enable kokorobox.service` or `sudo rc-update add kokorobox default`. Hosts without either manager can use the CLI directly.
 
-To upgrade, pull the desired revision, rebuild the CLI, and rerun the installer. Upgrades retain credentials, language, subscription selections, and existing timed Kokoro sync jobs. Existing local or combined capture migrates to local TUN and requires nftables before upgrade. LAN-only installations return to the explicit loopback proxy. Manual rule overlays and dashboard selections are retired. Existing sing-box JSON files remain available for future compatibility.
+To upgrade, download and verify the newer release archive, then rerun its installer. For source builds, check out the desired revision and rebuild first. Upgrades retain credentials, language, subscription selections, and existing timed Kokoro sync jobs. Existing local or combined capture migrates to local TUN and requires nftables before upgrade. LAN-only installations return to the explicit loopback proxy. Manual rule overlays and dashboard selections are retired. Existing sing-box JSON files remain available for future compatibility.
 
 ## License
 
