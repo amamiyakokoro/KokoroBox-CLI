@@ -10,6 +10,7 @@ prompt='Choose a language'
 # Supply a different host preference to ensure the install waits for the user's choice.
 printf '%s\n' x 3 0 | KOKOROBOX_LANG=cht timeout 45 script -qec 'bash install.sh' /dev/null >"$work/install"
 grep -Fq "$prompt" "$work/install"
+grep -Fq "KokoroBox-CLI installed." "$work/install"
 grep -Fq 'Enter 1–3' "$work/install"
 grep -Fq 'Kokoro subscriptions' "$work/install"
 [[ $(cat "$file") == en ]]

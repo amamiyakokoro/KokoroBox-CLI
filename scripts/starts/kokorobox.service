@@ -1,5 +1,5 @@
 [Unit]
-Description=KokoroBox-Shell proxy client
+Description=KokoroBox-CLI proxy client
 After=network-online.target
 Wants=network-online.target
 

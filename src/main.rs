@@ -90,7 +90,7 @@ fn dispatch(args: &[&str], l: &Locale) -> io::Result<i32> {
         _ => {}
     }
     if unsafe { libc::geteuid() } != 0 {
-        eprintln!("{}", l.tr("Run with sudo to manage KokoroBox-Shell."));
+        eprintln!("{}", l.tr("Run with sudo to manage KokoroBox-CLI."));
         return Ok(1);
     }
     use std::os::unix::fs::DirBuilderExt;

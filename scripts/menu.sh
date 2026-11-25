@@ -48,7 +48,7 @@ settings_menu() {
     done
 }
 while true; do
-    printf '\nKokoroBox-Shell\n%s\n' "1) $MENU_MAIN_1"
+    printf '\nKokoroBox-CLI\n%s\n' "1) $MENU_MAIN_1"
     printf '%s\n' "2) $MENU_MAIN_2" "3) $SETTINGS" "4) $STOP" "5) $STATUS" "6) $LOGS" "7) $TEST" "0) $EXIT"
     read -rp '> ' choice || exit 0
     case $choice in

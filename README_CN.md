@@ -1,4 +1,4 @@
-# KokoroBox-Shell
+# KokoroBox-CLI
 
 Kokoro 的 GNU/Linux 命令列客戶端。可從 SSH 登入、切換訂閱設定，用 Mihomo 載入 Kokoro 規則，並為本機提供 HTTP／SOCKS 或透明代理。[English](README.md)
 
@@ -10,8 +10,8 @@ Rust 管理 Kokoro 登入與訂閱、Mihomo 啟停，並透過 iproute2 和 nfta
 
 ```sh
 sudo apt-get install bash python3 python3-yaml curl ca-certificates iproute2 util-linux passwd build-essential pkg-config libcurl4-openssl-dev libssl-dev
-git clone --depth 1 --single-branch -b dev https://github.com/amamiyakokoro/KokoroBox-Shell.git
-cd KokoroBox-Shell
+git clone --depth 1 --single-branch -b dev https://github.com/amamiyakokoro/KokoroBox-CLI.git
+cd KokoroBox-CLI
 cargo build --release --locked
 sudo env KOKOROBOX_CLI_BIN="$PWD/target/release/kokorobox" bash install.sh
 ```

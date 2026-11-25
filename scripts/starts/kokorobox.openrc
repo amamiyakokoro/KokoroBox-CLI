@@ -1,5 +1,5 @@
 #!/sbin/openrc-run
-description="KokoroBox-Shell proxy client"
+description="KokoroBox-CLI proxy client"
 command=/usr/local/bin/kokorobox
 command_args="--service openrc-core"
 command_user=root:kokorobox

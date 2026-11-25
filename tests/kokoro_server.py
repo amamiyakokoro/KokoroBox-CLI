@@ -59,7 +59,7 @@ class Handler(BaseHTTPRequestHandler):
         body = self.rfile.read(int(self.headers["Content-Length"]))
         if self.headers.get_content_type() == "application/x-www-form-urlencoded":
             form = parse_qs(body.decode())
-            assert form["client_id"] == ["kokorobox-shell"]
+            assert form["client_id"] == ["kokorobox-cli"]
             if self.path == "/api/app/auth/device":
                 if (work / "device-unavailable").exists():
                     self.reply(404, {})
@@ -134,7 +134,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             assert self.path == "/api/config?uuid=synthetic-fixture&client=meta"
             assert not self.headers.get("Authorization")
-        assert self.headers["User-Agent"].startswith("KokoroBox-Shell/")
+        assert self.headers["User-Agent"].startswith("KokoroBox-CLI/")
         mode = (work / "mode").read_text().strip() if (work / "mode").exists() else "initial"
         if mode in ("redirect", "denied"):
             self.send_response(302 if mode == "redirect" else 403)

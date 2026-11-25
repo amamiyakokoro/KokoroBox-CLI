@@ -68,7 +68,7 @@
   "Field number to edit, s to save, q to cancel: ": "输入要修改的项目编号，s 保存，q 取消：",
   "Interactive menu": "打开交互菜单",
   "Automatic hourly sync": "每小时自动同步",
-  "Run with sudo to manage KokoroBox-Shell.": "请使用 sudo 管理 KokoroBox-Shell。",
+  "Run with sudo to manage KokoroBox-CLI.": "请使用 sudo 管理 KokoroBox-CLI。",
   "No local log yet.": "暂无本地日志。",
   "On next start": "下次启动时启用",
   "Active": "已生效",

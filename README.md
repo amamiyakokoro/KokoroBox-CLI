@@ -1,4 +1,4 @@
-# KokoroBox-Shell
+# KokoroBox-CLI
 
 A GNU/Linux CLI for Kokoro subscriptions and Mihomo. Sign in over SSH, choose subscription settings, and use the rules returned by Kokoro. [繁體中文](README_CN.md)
 
@@ -10,8 +10,8 @@ Build the native Rust CLI with Rust/Cargo 1.85 or later on GNU/Linux. On Debian 
 
 ```sh
 sudo apt-get install bash python3 python3-yaml curl ca-certificates iproute2 util-linux passwd build-essential pkg-config libcurl4-openssl-dev libssl-dev
-git clone --depth 1 --single-branch -b dev https://github.com/amamiyakokoro/KokoroBox-Shell.git
-cd KokoroBox-Shell
+git clone --depth 1 --single-branch -b dev https://github.com/amamiyakokoro/KokoroBox-CLI.git
+cd KokoroBox-CLI
 cargo build --release --locked
 sudo env KOKOROBOX_CLI_BIN="$PWD/target/release/kokorobox" bash install.sh
 ```

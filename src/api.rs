@@ -106,7 +106,7 @@ pub fn request(
 ) -> Result<Vec<u8>> {
     let mut easy = Easy::new();
     easy.url(url)?;
-    easy.useragent(&format!("KokoroBox-Shell/{VERSION} (mihomo)"))?;
+    easy.useragent(&format!("KokoroBox-CLI/{VERSION} (mihomo)"))?;
     easy.timeout(timeout)?;
     if let Some(ca) = env::var_os("SSL_CERT_FILE").filter(|v| !v.is_empty()) {
         easy.cainfo(std::path::Path::new(&ca))?;

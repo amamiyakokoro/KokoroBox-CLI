@@ -11,7 +11,7 @@ use std::{
 };
 
 pub const SESSION: &str = "auth/session.json";
-const CLIENT: &str = "kokorobox-shell";
+const CLIENT: &str = "kokorobox-cli";
 const DEVICE_GRANT: &str = "urn:ietf:params:oauth:grant-type:device_code";
 const TIMEOUT: Duration = Duration::from_secs(30);
 

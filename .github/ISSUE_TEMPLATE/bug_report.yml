@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a problem with KokoroBox-Shell on GNU/Linux
+description: Report a problem with KokoroBox-CLI on GNU/Linux
 title: "[Bug] "
 body:
   - type: input
