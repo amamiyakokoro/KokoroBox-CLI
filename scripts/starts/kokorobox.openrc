@@ -1,0 +1,16 @@
+#!/sbin/openrc-run
+description="KokoroBox-Shell proxy client"
+command=/usr/local/bin/kokorobox
+command_args="--service openrc-core"
+command_user=root:kokorobox
+supervisor=supervise-daemon
+depend() { use net; }
+start_pre() { "$command" --service prepare; }
+start_post() {
+    "$command" --host-route start && return 0
+    # OpenRC marks a failed post hook stopped while supervise-daemon is still alive.
+    supervise-daemon "$RC_SVCNAME" --stop
+    "$command" --host-route stop
+    return 1
+}
+stop_post() { "$command" --host-route stop; }

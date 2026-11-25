@@ -1,0 +1,20 @@
+[Unit]
+Description=KokoroBox-Shell proxy client
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Group=kokorobox
+UMask=0077
+WorkingDirectory=/etc/KokoroBox
+ExecStartPre=/usr/local/bin/kokorobox --service prepare
+ExecStart=/usr/local/bin/kokorobox --service run-core
+ExecStartPost=/usr/local/bin/kokorobox --host-route start
+ExecStopPost=/usr/local/bin/kokorobox --host-route stop
+Restart=on-abnormal
+RestartSec=10
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target

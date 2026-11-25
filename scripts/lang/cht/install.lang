@@ -1,0 +1,7 @@
+INSTALL_LINUX="KokoroBox-Shell 需要 GNU/Linux。"
+INSTALL_ROOT="請執行 sudo bash install.sh。"
+INSTALL_MISSING="缺少必要命令"
+INSTALL_ARCH="此架構沒有可用的 Mihomo 核心"
+INSTALL_DONE="KokoroBox-Shell 已安裝。請執行 sudo kokorobox login 和 sudo kokorobox sync，或使用 sudo kokorobox subscribe 匯入訂閱。"
+INSTALL_DOWNLOAD="正在下載"
+INSTALL_CHECKSUM="Mihomo SHA-256 驗證失敗："

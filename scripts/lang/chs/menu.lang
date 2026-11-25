@@ -1,0 +1,29 @@
+MENU_MAIN_1="Kokoro 订阅"
+MENU_MAIN_2="启动/重启服务"
+MENU_NEED_ROOT="请使用 sudo 管理 KokoroBox-Shell。"
+MENU_CONFIRM_UNINSTALL="卸载 KokoroBox-Shell 并删除订阅？[y/N] "
+LOGIN="登录 Kokoro"
+WHO="查看 Kokoro 账号"
+LOGOUT="退出 Kokoro 登录"
+SELECT="选择 Kokoro 账号订阅"
+IMPORT="导入 Kokoro Mihomo 订阅"
+SYNC="更新 Kokoro 订阅"
+SETTINGS="设置"
+STOP="停止服务"
+STATUS="状态"
+LOGS="本地日志"
+TEST="测试连接"
+LANGUAGE="语言"
+BACK="返回"
+EXIT="退出"
+HOST_MODE="本机透明代理"
+AUTO="每小时自动同步"
+ON="开启"
+OFF="关闭"
+NO_LOG="还没有本地日志。"
+MENU_USAGE="kokorobox                         打开交互菜单
+kokorobox login | whoami | logout | select | subscribe | sync
+kokorobox start | restart | stop | status | logs | test
+kokorobox transparent on|off      本机透明代理
+kokorobox auto-sync on|off|show   每小时自动同步
+kokorobox uninstall"

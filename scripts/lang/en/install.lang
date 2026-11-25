@@ -1,0 +1,7 @@
+INSTALL_LINUX="KokoroBox-Shell requires GNU/Linux."
+INSTALL_ROOT="Run sudo bash install.sh."
+INSTALL_MISSING="Missing required command"
+INSTALL_ARCH="No Mihomo build for this architecture"
+INSTALL_DONE="KokoroBox-Shell installed. Run sudo kokorobox login and sudo kokorobox sync, or sudo kokorobox subscribe."
+INSTALL_DOWNLOAD="Downloading"
+INSTALL_CHECKSUM="Mihomo SHA-256 verification failed for"

@@ -1,0 +1,22 @@
+name: GNU/Linux
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y cron iproute2 psmisc python3-yaml nftables pkg-config libcurl4-openssl-dev libssl-dev
+      - run: cargo test --locked && cargo build --release --locked
+      - name: Fetch the pinned Mihomo archive for the installer tests
+        run: |
+          . scripts/libs/check_cpucore.sh
+          . bin/version
+          asset="mihomo-linux-$(linux_core_arch)-$mihomo_version.gz"
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/mihomo.gz" "https://github.com/MetaCubeX/mihomo/releases/download/$mihomo_version/$asset"
+      - run: sudo env KOKOROBOX_CLI_BIN="$PWD/target/release/kokorobox" KOKOROBOX_MIHOMO_ARCHIVE="$RUNNER_TEMP/mihomo.gz" bash tests/test_install_language.sh
+      - run: /usr/bin/python3 -m unittest discover -s tests -p 'test_*.py'
+      - run: sudo bash tests/test_menu_locales.sh
+      - run: sudo bash tests/test_kokoro.sh
+      - run: sudo unshare --mount --propagation private --net bash tests/test_host_route.sh

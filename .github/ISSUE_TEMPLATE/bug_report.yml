@@ -1,0 +1,16 @@
+name: Bug report
+description: Report a problem with KokoroBox-Shell on GNU/Linux
+title: "[Bug] "
+body:
+  - type: input
+    attributes:
+      label: Distribution, architecture and init system
+      placeholder: Debian 13, aarch64, systemd
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Include the revision, steps to reproduce and expected result. Redact private subscription URLs and credentials.
+    validations:
+      required: true

@@ -1,0 +1,29 @@
+MENU_MAIN_1="Kokoro subscriptions"
+MENU_MAIN_2="Start / Restart Service"
+MENU_NEED_ROOT="Run with sudo to manage KokoroBox-Shell."
+MENU_CONFIRM_UNINSTALL="Uninstall KokoroBox-Shell and delete its subscriptions? [y/N] "
+LOGIN="Sign in to Kokoro"
+WHO="Show Kokoro account"
+LOGOUT="Sign out of Kokoro"
+SELECT="Select Kokoro account subscription"
+IMPORT="Import Kokoro Mihomo subscription"
+SYNC="Refresh Kokoro subscription"
+SETTINGS="Settings"
+STOP="Stop service"
+STATUS="Status"
+LOGS="Local logs"
+TEST="Test connection"
+LANGUAGE="Language"
+BACK="Back"
+EXIT="Exit"
+HOST_MODE="Local transparent proxy"
+AUTO="Automatic hourly sync"
+ON="On"
+OFF="Off"
+NO_LOG="No local log yet."
+MENU_USAGE="kokorobox                         Interactive menu
+kokorobox login | whoami | logout | select | subscribe | sync
+kokorobox start | restart | stop | status | logs | test
+kokorobox transparent on|off      Local transparent proxy
+kokorobox auto-sync on|off|show   Automatic hourly sync
+kokorobox uninstall"
