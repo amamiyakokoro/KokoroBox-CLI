@@ -4,137 +4,77 @@
 
 # KokoroBox-CLI
 
-A GNU/Linux command-line [Mihomo](https://github.com/MetaCubeX/mihomo) client with Kokoro subscriptions and SSH device sign-in.
+A GNU/Linux command-line client for Kokoro subscriptions and [Mihomo](https://github.com/MetaCubeX/mihomo).
 
-[Download](https://github.com/amamiyakokoro/KokoroBox-CLI/releases) · [繁體中文](README_CN.md) · [License](LICENSE.txt)
+[Download](https://github.com/amamiyakokoro/KokoroBox-CLI/releases) · [License](LICENSE.txt)
 
 </div>
 
 ## Features
 
-- Device-code login over SSH and interactive menus in English, 简体中文, and 繁體中文
-- Kokoro account subscriptions and external Mihomo links, with plan, protocol, routing, and rule selection
-- Manual or scheduled subscription sync with validation and live reload
-- Local HTTP/SOCKS and transparent TUN proxying
-- Service management through systemd, OpenRC, or the CLI
+- Device-code login over SSH
+- Kokoro account subscriptions and external Mihomo links, with manual or scheduled sync
+- Local HTTP/SOCKS and optional TUN transparent proxy
 
-## Supported platforms
+## Install
 
-Prebuilt releases support GNU/Linux AMD64 (`x86_64`) and ARM64 (`aarch64`). The installer can also select a Mihomo core for ARMv5–v7 and MIPS hosts when you supply a CLI binary built for the target architecture.
-
-## Get started
-
-### Install
-
-The [v0.3.1 release](https://github.com/amamiyakokoro/KokoroBox-CLI/releases/tag/v0.3.1) provides Linux AMD64 and ARM64 archives built on Debian 12 with glibc and OpenSSL 3. Each archive includes the CLI, installer, and rule data. On Debian 12 or newer, or Ubuntu 24.04 or newer, install the runtime dependencies and verify the archive before extracting it.
+Prebuilt archives support Linux AMD64 and ARM64 on Debian 12+ and Ubuntu 24.04+. Each includes the CLI, installer, and rule data.
 
 ```sh
 sudo apt-get install bash python3 python3-yaml curl ca-certificates iproute2 util-linux passwd
 
-case $(uname -m) in
-    x86_64) arch=amd64 ;;
-    aarch64|arm64) arch=arm64 ;;
-    *) echo "No prebuilt CLI for this architecture. Build from source." >&2; exit 1 ;;
-esac
-
-archive="KokoroBox-CLI-v0.3.1-linux-$arch.tar.gz"
-release="https://github.com/amamiyakokoro/KokoroBox-CLI/releases/download/v0.3.1"
-curl -fLO "$release/$archive" || exit 1
-curl -fLO "$release/SHA256SUMS" || exit 1
-grep -F "  $archive" SHA256SUMS | sha256sum --check || exit 1
-tar -xzf "$archive" || exit 1
-cd "${archive%.tar.gz}" || exit 1
-sudo env KOKOROBOX_CLI_BIN="$PWD/kokorobox" bash install.sh
+(
+    set -e
+    case $(uname -m) in
+        x86_64) arch=amd64 ;;
+        aarch64|arm64) arch=arm64 ;;
+        *) echo "Build from source for this architecture." >&2; exit 1 ;;
+    esac
+    version=v0.3.1
+    archive="KokoroBox-CLI-$version-linux-$arch.tar.gz"
+    release="https://github.com/amamiyakokoro/KokoroBox-CLI/releases/download/$version"
+    curl -fLO "$release/$archive"
+    curl -fLO "$release/SHA256SUMS"
+    grep -F "  $archive" SHA256SUMS | sha256sum --check
+    tar -xzf "$archive"
+    cd "${archive%.tar.gz}"
+    sudo env KOKOROBOX_CLI_BIN="$PWD/kokorobox" bash install.sh
+)
 ```
 
-The installer downloads and verifies the pinned Mihomo core. For offline installation, add `KOKOROBOX_MIHOMO_ARCHIVE=/absolute/path/to/archive.gz` to the `sudo env` command. Use the official Mihomo archive for your architecture listed in [bin/mihomo.sha256](bin/mihomo.sha256).
+The installer downloads and verifies Mihomo. For offline installation, add `KOKOROBOX_MIHOMO_ARCHIVE=/absolute/path/to/mihomo.gz` to the `sudo env` command and use the official archive for your architecture in the [checksum list](bin/mihomo.sha256). To upgrade, run the installer from the newer release.
 
-The first interactive installation asks for 简体中文, 繁體中文 or English and opens the main menu. Change the saved language under **3 → b**. For unattended installation, set `KOKOROBOX_LANG=chs|cht|en` or choose a language on first interactive use.
+## Get started
 
-### Sign in and use the proxy
+Run `sudo kokorobox login`, then open the URL shown in the terminal on another device and approve the code.
 
 ```sh
-sudo kokorobox login
+sudo kokorobox select   # Choose subscription settings
+sudo kokorobox start    # Start Mihomo
+sudo kokorobox status   # Check service and subscription status
 ```
 
-Open the address shown in the terminal on another device, enter the code, and approve sign-in. Then choose your subscription and start the proxy.
+The HTTP/SOCKS proxy listens on `127.0.0.1:7890`. Run `sudo kokorobox` for the interactive menu, or pass a subcommand.
+
+| Subcommand | Purpose |
+|---|---|
+| `whoami`, `logout` | Check the signed-in account or sign out |
+| `subscribe`, `sync` | Import a Kokoro link or refresh the active subscription |
+| `auto-sync on` | Enable hourly sync through cron |
+| `transparent on` | Enable local transparent proxying with nftables and TUN |
+| `stop`, `restart`, `logs`, `test` | Manage and diagnose the service |
+
+## Build from source
+
+Install the runtime dependencies above and Rust/Cargo 1.85 or newer.
 
 ```sh
-sudo kokorobox select
-sudo kokorobox start
-sudo kokorobox status
-```
-
-Open the address printed by`login` on another device and confirm the code. In `select`, choose a plan, protocol, ISP, connection mode, rule source and final route from the options offered to your account. Enter accepts the displayed default and `q` cancels. To use the server defaults immediately after login, run `kokorobox sync`. Alternatively, use `kokorobox subscribe` with an external Mihomo link generated by Kokoro. Paste it at the hidden prompt or supply it on standard input.
-
-After the first account selection, `select` opens a summary. Enter a field number to edit, `s` to apply or `q` to discard. Use `subscribe` to switch to an external link and `select` to switch to the signed-in account. Manual and scheduled syncs use that source even after login. A different account must explicitly select its subscription.
-
-## Development
-
-Rust handles login, subscription downloads, and service management. Python handles interactive subscription editing and Mihomo YAML validation and reload.
-
-Install the runtime dependencies above, Rust/Cargo 1.85 or later, and the build packages below. For development builds, clone the `dev` branch in place of the release tag.
-
-```sh
-sudo apt-get install build-essential pkg-config libcurl4-openssl-dev libssl-dev
-git clone --depth 1 --single-branch -b v0.3.1 https://github.com/amamiyakokoro/KokoroBox-CLI.git
+sudo apt-get install git build-essential pkg-config libcurl4-openssl-dev libssl-dev
+git clone --depth 1 --branch v0.3.1 https://github.com/amamiyakokoro/KokoroBox-CLI.git
 cd KokoroBox-CLI
 cargo build --release --locked
 sudo env KOKOROBOX_CLI_BIN="$PWD/target/release/kokorobox" bash install.sh
 ```
-
-## Documentation
-
-- [First account subscription](#first-account-subscription)
-- [Local transparent proxy](#local-transparent-proxy)
-- [Command reference](#management)
-- [Upgrade](#upgrade)
-
-### First account subscription
-
-Run `sudo kokorobox sync` after login to accept the defaults when an account is the active source. For an existing external subscription, switch to the account with `sudo kokorobox select`. The CLI uses the choices offered by the account. The current Kokoro defaults are:
-
-| Setting | Default |
-|---|---|
-| Core and format | Mihomo |
-| Plan and ISP | First available account plan, automatic ISP |
-| Protocol and connection | VMess, relay |
-| Rule source and final route | Origin, proxy for unmatched traffic |
-| Rule provider updates | On |
-| Advertised profile update interval | On, 1 hour |
-
-The local hourly sync job is opt-in (`sudo kokorobox auto-sync on`). A fresh installation uses a loopback listener with local transparent capture off.
-
-The default HTTP/SOCKS proxy listens at **127.0.0.1:7890**. `select` and `sync` validate the effective configuration with Mihomo and apply changes to a running core. Unchanged content skips the reload. Failed validation preserves the previous subscription. The client retains the order of Kokoro’s rules, policy groups, rule providers and final `MATCH`. Change custom rules on Kokoro, then run `sync`. Local session and subscription files are private to root. `logout` revokes the session and preserves the downloaded profile.
-
-### Local transparent proxy
-
-Install `nftables` and enable the Linux TUN device. Containers need `/dev/net/tun` and `CAP_NET_ADMIN`.
-
-```sh
-sudo kokorobox transparent on
-sudo kokorobox transparent off
-```
-
-The switch persists and restarts an active service. Transparent mode directs local TCP and UDP through Mihomo’s system TUN using an nftables output chain and IPv4/IPv6 policy routing. DNS queries reaching the TUN use Mihomo DNS. Loopback, link-local traffic, replies to inbound connections and Mihomo’s own sockets retain normal routing. The client never enables IP forwarding. Mode changes require an available device name `kbox0` and routing table and priority 18992.
-
-### Management
-
-| Command | Purpose |
-|---|---|
-| `kokorobox` | Open the interactive menu |
-| `whoami`, `logout` | Inspect or revoke this host’s Kokoro session |
-| `status` | Show service state, proxy address, transparent mode and saved subscription details |
-| `start`, `stop`, `restart` | Manage the service |
-| `logs`, `test` | Read recent core logs or test HTTPS through the local proxy |
-| `auto-sync on\|off\|show` | Enable hourly subscription sync, disable it, or display the schedule |
-| `uninstall` | Remove the installation after confirmation |
-
-Prefix the subcommands above with `sudo kokorobox`. Automatic sync requires a running cron service. It refreshes a stopped client’s profile without starting it. The update interval advertised to Kokoro is independent of this local schedule. Enable boot startup with `sudo systemctl enable kokorobox.service` or `sudo rc-update add kokorobox default`. Hosts without either manager can use the CLI directly.
-
-### Upgrade
-
-To upgrade, download and verify the newer release archive, then rerun its installer. For source builds, check out the desired revision and rebuild first. Upgrades retain credentials, language, subscription selections, and existing timed Kokoro sync jobs. Existing local or combined capture migrates to local TUN and requires nftables before upgrade. LAN-only installations return to the explicit loopback proxy. Manual rule overlays and dashboard selections are retired. Existing sing-box JSON files remain available for future compatibility.
 
 ## License
 
