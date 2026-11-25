@@ -1,12 +1,30 @@
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/amamiyakokoro/KokoroBox-Desktop/9ab5782f688500f52d5324d28dc596ff0cd77998/images/kokorobox-readme.png" width="128" height="128" alt="KokoroBox">
+
 # KokoroBox-CLI
 
-Kokoro 的 GNU/Linux 命令列客戶端。可從 SSH 登入、切換訂閱設定，用 Mihomo 載入 Kokoro 規則，並為本機提供 HTTP／SOCKS 或透明代理。[English](README.md)
+支援 Kokoro 訂閱及 SSH 裝置碼登入的 GNU/Linux [Mihomo](https://github.com/MetaCubeX/mihomo) 命令列客戶端。
 
-Rust 管理 Kokoro 登入與訂閱、Mihomo 啟停，並透過 iproute2 和 nftables 設定本機透明代理。互動欄位選擇器與 Mihomo YAML 設定的驗證和重載由 Python 處理。
+[下載](https://github.com/amamiyakokoro/KokoroBox-CLI/releases) · [English](README.md) · [授權](LICENSE.txt)
 
-## 安裝
+</div>
 
-### 安裝預編譯版本
+## 功能
+
+- 在 SSH 中使用裝置碼登入，互動選單提供繁體中文、簡體中文和英文
+- 使用 Kokoro 帳戶訂閱或外部 Mihomo 連結，自選方案、協定、路由與規則
+- 手動或定時同步訂閱，驗證後即時套用至執行中的服務
+- 本機 HTTP／SOCKS 與 TUN 透明代理
+- 透過 systemd、OpenRC 或 CLI 管理服務
+
+## 支援平台
+
+預編譯版本支援 GNU/Linux AMD64（`x86_64`）與 ARM64（`aarch64`）。若已建置適用於目標架構的 CLI，安裝器也可為 ARMv5–v7 和 MIPS 主機選擇對應的 Mihomo 核心。
+
+## 開始使用
+
+### 安裝
 
 [v0.3.1 發行頁](https://github.com/amamiyakokoro/KokoroBox-CLI/releases/tag/v0.3.1) 提供 Linux AMD64 與 ARM64 壓縮檔，使用 Debian 12、glibc 與 OpenSSL 3 建置。每個壓縮檔含 CLI、安裝程式和規則資料。在 Debian 12 或更新版本、Ubuntu 24.04 或更新版本，可安裝執行環境依賴並校驗壓縮檔後再解壓。
 
@@ -31,7 +49,29 @@ sudo env KOKOROBOX_CLI_BIN="$PWD/kokorobox" bash install.sh
 
 安裝器會下載並校驗指定版本的 Mihomo 核心。離線安裝時，在 `sudo env` 命令中加上 `KOKOROBOX_MIHOMO_ARCHIVE=/absolute/path/to/archive.gz`，並使用 [bin/mihomo.sha256](bin/mihomo.sha256) 列出的對應架構官方檔案。
 
-### 從原始碼建置
+首次互動安裝會先選擇簡中、繁中或英文，再開啟主選單。日後可在 **3 → b** 更換語言。非互動安裝可指定 `KOKOROBOX_LANG=chs|cht|en`，也可留待第一次開啟選單時選擇。
+
+### 登入、切換設定與同步
+
+```sh
+sudo kokorobox login
+```
+
+在另一台裝置開啟終端顯示的網址，輸入代碼並批准登入。接著選擇訂閱並啟動代理服務。
+
+```sh
+sudo kokorobox select
+sudo kokorobox start
+sudo kokorobox status
+```
+
+`select` 會列出帳號能選擇的方案、協定、ISP、連線模式、規則來源與最終路由。按 Enter 沿用預設，輸入 `q` 取消。想直接使用伺服器預設值，登入後執行 `sync` 即可。也可以執行 `subscribe`，在隱藏輸入提示貼上 Kokoro 產生的外部 Mihomo 訂閱連結，或從標準輸入傳入。
+
+首次選擇帳號訂閱後，`select` 會顯示摘要，輸入項目編號即可單獨修改，`s` 套用、`q` 取消。`subscribe` 切到外部連結，`select` 切到已登入帳號。登入後，手動與排程同步仍沿用選定來源。更換帳號時需用 `select` 明確切換。
+
+## 開發
+
+Rust 負責登入、下載訂閱與服務管理。Python 處理互動式訂閱編輯及 Mihomo YAML 設定的驗證與重載。
 
 先安裝上方的執行環境依賴、Rust／Cargo 1.85 以上版本與下列建置套件。若要建置開發版，clone 時選用 `dev` 分支。
 
@@ -43,20 +83,12 @@ cargo build --release --locked
 sudo env KOKOROBOX_CLI_BIN="$PWD/target/release/kokorobox" bash install.sh
 ```
 
-首次互動安裝會先選擇簡中、繁中或英文，再開啟主選單。日後可在 **3 → b** 更換語言。非互動安裝可指定 `KOKOROBOX_LANG=chs|cht|en`，也可留待第一次開啟選單時選擇。
+## 文件
 
-## 登入、切換設定與同步
-
-```sh
-sudo kokorobox login
-sudo kokorobox select
-sudo kokorobox start
-sudo kokorobox status
-```
-
-在另一台裝置開啟登入網址並確認代碼。`select` 會列出帳號能選擇的方案、協定、ISP、連線模式、規則來源與最終路由。按 Enter 沿用預設，輸入 `q` 取消。想直接使用伺服器預設值，登入後執行 `sync` 即可。也可以執行 `subscribe`，在隱藏輸入提示貼上 Kokoro 產生的外部 Mihomo 訂閱連結，或從標準輸入傳入。
-
-首次選擇帳號訂閱後，`select` 會顯示摘要，輸入項目編號即可單獨修改，`s` 套用、`q` 取消。`subscribe` 切到外部連結，`select` 切到已登入帳號。登入後，手動與排程同步仍沿用選定來源；更換帳號時需用 `select` 明確切換。
+- [首次帳戶訂閱的預設值](#首次帳戶訂閱的預設值)
+- [本機透明代理](#本機透明代理)
+- [指令參考](#管理)
+- [升級](#升級)
 
 ### 首次帳戶訂閱的預設值
 
@@ -75,7 +107,7 @@ sudo kokorobox status
 
 本機 HTTP／SOCKS 預設位址為 **127.0.0.1:7890**。`select`、`sync` 會用 Mihomo 驗證實際執行設定，執行中的服務會直接套用，內容相同時略過重載。驗證失敗會保留舊訂閱。節點群組、規則順序、引用的規則集與最終 `MATCH` 依照 Kokoro 訂閱。可在 Kokoro 網頁修改個人規則後執行 `sync`。登入憑證與訂閱只允許 root 讀寫。`logout` 會撤銷本機工作階段並保留已下載的設定。
 
-## 本機透明代理
+### 本機透明代理
 
 先安裝 `nftables` 並確認 Linux 提供 TUN。容器需允許 `/dev/net/tun` 與 `CAP_NET_ADMIN`。
 
@@ -86,7 +118,7 @@ sudo kokorobox transparent off
 
 切換會記住模式，服務執行中時會重新啟動。本機發出的 TCP／UDP 經 nftables 的 output 鏈與 IPv4／IPv6 策略路由進入 Mihomo 的 system TUN。進入 TUN 的 DNS 查詢由 Mihomo 處理。回環、鏈路本地流量、外部連入連線的回應，以及核心本身的連線沿用系統路由。客戶端不會開啟 IP 轉送。透明模式使用介面名稱 `kbox0`、路由表及優先順序 18992。
 
-## 管理
+### 管理
 
 | 子命令 | 用途 |
 |---|---|
@@ -98,6 +130,8 @@ sudo kokorobox transparent off
 | `uninstall` | 確認後移除安裝與本機資料 |
 
 使用 `sudo kokorobox 子命令` 執行，或直接執行 `sudo kokorobox` 開啟選單。自動同步需有執行中的 cron，服務停止時只更新設定。傳給 Kokoro 的訂閱更新間隔與本機排程分開設定。開機自啟可使用 `sudo systemctl enable kokorobox.service` 或 `sudo rc-update add kokorobox default`。沒有這兩種管理器的主機也可直接透過 CLI 啟停。
+
+### 升級
 
 升級時下載並校驗新版壓縮檔，再執行內附的安裝程式。從原始碼安裝時，先切換至目標版本並重新建置。既有帳號、語言、訂閱選擇及定時同步排程會保留。舊版本機或混合接管會遷移為本機 TUN，升級前需備妥 nftables。原本僅代理區網的安裝改用回環代理。本機手動規則覆寫與面板選擇停止套用，既有 sing-box JSON 設定會保留供後續相容。
 
